@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bomb Heroes: heróis que caçam tesouro sozinhos</title>
+<meta name="description" content="Monte seu time de heróis, deixe eles plantarem bombas e juntarem moedas, e suba de raridade com caixas e fusões. Joga direto no navegador, no celular ou no computador.">
+<meta name="theme-color" content="#0f141c">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Bomb Heroes">
+<meta property="og:description" content="Heróis que caçam tesouro sozinhos. Joga direto no navegador, sem instalar nada.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='28' fill='%230b1018'/%3E%3Ccircle cx='64' cy='72' r='30' fill='%231c1f26' stroke='%2322d3ee' stroke-width='3'/%3E%3Crect x='40' y='70' width='48' height='12' rx='6' fill='%2322d3ee'/%3E%3Cpath d='M72 38Q84 24 94 30' fill='none' stroke='%23a3a3a3' stroke-width='3'/%3E%3Ccircle cx='96' cy='29' r='7' fill='%23fde047'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --chao:#0c1017;
+  --metal:#1e242e;
+  --painel:#0f172a;
+  --linha:#202a3a;
+  --linha-forte:#164e63;
+  --ciano:#22d3ee;
+  --ciano-claro:#67e8f9;
+  --ouro:#fbbf24;
+  --texto:#e5e7eb;
+  --claro:#cbd5e1;
+  --suave:#94a3b8;
+  --titulo:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --corpo:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;overflow-x:clip}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{
+  margin:0;
+  background-color:var(--chao);
+  background-image:linear-gradient(#11161d 1px,transparent 1px),linear-gradient(90deg,#11161d 1px,transparent 1px);
+  background-size:32px 32px;
+  overflow-x:clip;
+  min-width:0;
+  color:var(--texto);
+  font:400 1.0625rem/1.6 var(--corpo);
+}
+a:focus-visible,summary:focus-visible,button:focus-visible{outline:2px solid var(--ciano-claro);outline-offset:3px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:8px;z-index:30;background:#0e3a47;color:#fff;padding:8px 14px;border-radius:6px}
+.pular:focus{left:12px}
+
+/* topo, no estilo do HUD do jogo */
+.topo{position:sticky;top:0;z-index:10;background:rgba(15,20,28,.95);border-bottom:1px solid var(--linha-forte);backdrop-filter:blur(6px)}
+.topo-in{max-width:1120px;margin:0 auto;padding:10px 20px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 16px;align-items:center}
+.marca{display:flex;align-items:center;gap:10px;color:var(--texto);text-decoration:none;font:800 1.55rem/1 var(--titulo)}
+.marca svg{width:30px;height:30px;display:block}
+.topo nav{grid-column:1/-1;display:flex;gap:2px;overflow-x:auto;margin:0;padding:0;min-width:0;scrollbar-width:none}
+.topo nav::-webkit-scrollbar{display:none}
+.topo nav a{flex:none;color:var(--suave);text-decoration:none;padding:8px 12px;border-radius:6px;font-weight:500;font-size:.95rem}
+.topo nav a:hover{color:var(--texto);background:#151b26}
+.botao{display:inline-block;background:#0e3a47;color:#fff;border:1px solid var(--ciano);border-radius:10px;padding:12px 22px;font:700 1.05rem/1 var(--corpo);text-decoration:none;transition:background .15s,box-shadow .15s}
+.botao:hover{background:#115e73;box-shadow:0 0 22px -4px rgba(34,211,238,.55)}
+.topo .botao{padding:10px 16px;font-size:.95rem}
+@media (min-width:900px){
+  .topo-in{grid-template-columns:auto 1fr auto}
+  .topo nav{grid-column:auto;margin:0;padding:0;justify-content:center;overflow:visible}
+}
+
+/* abertura */
+.hero{max-width:1120px;margin:0 auto;padding:40px 20px 36px;display:grid;grid-template-columns:minmax(0,1fr);gap:32px}
+.hero>*{min-width:0}
+@media (min-width:900px){
+  .hero{grid-template-columns:minmax(0,5fr) minmax(0,6fr);align-items:center;padding-top:64px;padding-bottom:56px;gap:48px}
+}
+h1{font:800 clamp(3rem,10vw,5.2rem)/.92 var(--titulo);margin:0 0 20px}
+h1 em{font-style:normal;color:var(--ciano)}
+.lead{font-size:1.15rem;color:var(--claro);margin:0;max-width:34rem}
+.acoes{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;margin-top:28px}
+.link{color:var(--ciano-claro);text-underline-offset:4px}
+.nota{color:var(--suave);font-size:.92rem;margin:16px 0 0}
+.cena{width:100%;max-width:100%;height:auto;display:block;border:1px solid var(--linha-forte);border-radius:10px;background:#0b1018;box-shadow:0 22px 60px -28px rgba(34,211,238,.4)}
+
+/* seções */
+section{max-width:1120px;margin:0 auto;padding:56px 20px;scroll-margin-top:96px}
+.sep{border:0;border-top:1px solid var(--linha);max-width:1120px;margin:0 auto}
+h2{font:800 clamp(2.1rem,6vw,3.2rem)/1 var(--titulo);margin:0 0 12px}
+.intro{color:var(--suave);max-width:40rem;margin:0 0 28px}
+
+.passos{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+@media (min-width:760px){.passos{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.passos li{display:grid;grid-template-columns:48px 1fr;gap:4px 16px;align-items:start;background:var(--painel);border:1px solid var(--linha);border-radius:8px;padding:18px}
+.num{grid-row:1/3;width:48px;height:48px;border:1px solid #2a3240;background:var(--metal);border-radius:4px;display:grid;place-items:center;font:800 1.8rem/1 var(--titulo);color:var(--ciano)}
+.passos h3{margin:2px 0 0;font:800 1.5rem/1.1 var(--titulo)}
+.passos p{margin:0;color:var(--claro)}
+
+.herois{list-style:none;margin:0;padding:0 0 12px;max-width:100%;display:grid;grid-auto-flow:column;grid-auto-columns:min(70%,230px);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:thin}
+@media (min-width:960px){
+  .herois{grid-auto-flow:row;grid-template-columns:repeat(5,minmax(0,1fr));grid-auto-columns:auto;margin:0;padding:0;overflow:visible}
+}
+.hcard{scroll-snap-align:start;background:var(--painel);border:1px solid var(--linha);border-top:3px solid var(--bri);border-radius:6px;padding:16px 16px 18px;display:flex;flex-direction:column;gap:6px}
+.hcard svg{width:110px;height:auto;align-self:center;margin:4px 0 6px}
+.hcard h3{margin:0;font:800 1.7rem/1 var(--titulo);color:var(--bri)}
+.hcard .de{margin:0 0 6px;color:var(--suave);font-size:.92rem}
+.stat{display:grid;grid-template-columns:58px 1fr 26px;gap:8px;align-items:center;font-size:.88rem;color:var(--claro)}
+.barra{display:block;height:6px;border-radius:3px;background:#0b0d12;overflow:hidden}
+.barra i{display:block;height:100%;width:var(--v);background:var(--bri)}
+.stat b{text-align:right;font-weight:600}
+
+.regras{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+details{background:var(--painel);border:1px solid var(--linha);border-radius:8px}
+summary{cursor:pointer;list-style:none;padding:16px 18px;font:800 1.4rem/1.1 var(--titulo);display:flex;justify-content:space-between;gap:12px;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--ciano);font:600 1.5rem/1 var(--corpo)}
+details[open] summary::after{content:"\2212"}
+.corpo-regra{padding:0 18px 18px;color:var(--claro)}
+.corpo-regra p{margin:0 0 10px}
+.rolagem{overflow-x:auto;max-width:100%}
+table{width:100%;border-collapse:collapse;margin:6px 0 10px;font-size:.98rem}
+th,td{text-align:left;padding:9px 8px 9px 0;border-bottom:1px solid var(--linha)}
+th{color:var(--suave);font-weight:500;font-size:.9rem}
+td+td,th+th{text-align:right;padding-right:0;padding-left:14px}
+td{font-variant-numeric:tabular-nums}
+.aviso-regras{color:var(--suave);font-size:.95rem;margin:18px 0 0}
+
+.tela{position:relative;aspect-ratio:16/9;min-height:260px;border:1px solid var(--linha-forte);border-radius:10px;background:#0b1018;overflow:hidden;display:grid;place-items:center}
+.tela iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.aviso{max-width:30rem;padding:24px;text-align:center}
+.aviso svg{width:64px;height:64px;margin-bottom:8px}
+.aviso strong{display:block;font:800 1.6rem/1.1 var(--titulo);margin-bottom:6px}
+.aviso p{margin:0;color:var(--suave)}
+
+.versao{border-left:2px solid var(--linha-forte);padding:0 0 24px 22px;position:relative}
+.versao::before{content:"";position:absolute;left:-6px;top:6px;width:10px;height:10px;background:var(--ciano);border-radius:2px}
+.versao h3{margin:0;font:800 1.6rem/1.1 var(--titulo)}
+.versao time{color:var(--suave);font-size:.92rem}
+.versao ul{margin:10px 0 0;padding-left:1.1rem;color:var(--claro)}
+.vazio{color:var(--suave)}
+
+footer{border-top:1px solid var(--linha-forte);background:#0f141c}
+.rodape{max-width:1120px;margin:0 auto;padding:28px 20px;color:var(--suave);font-size:.95rem;display:grid;gap:6px}
+.rodape strong{color:var(--texto);font:800 1.3rem/1 var(--titulo)}
+
+/* cena animada */
+.p-esc{fill:var(--esc)}
+.p-med{fill:var(--med)}
+.p-sec{fill:var(--sec)}
+.p-bri{fill:var(--bri)}
+.aura{display:var(--aura,none)}
+.chifres{display:var(--chifres,none)}
+.crista{display:var(--crista,inline)}
+.cena .andar{transform:translate(16px,16px);animation:andar 9s linear infinite}
+.cena .bomba{opacity:0;animation:bomba 9s linear infinite}
+.cena .boom{opacity:0;transform-box:fill-box;transform-origin:center;animation:boom 9s linear infinite}
+.cena .alvo{animation:alvo 9s linear infinite}
+.cena .moeda{opacity:0;transform-box:fill-box;transform-origin:center;animation:moeda 9s linear infinite}
+.cena .mais{opacity:0;animation:mais 9s linear infinite}
+.cena .fagulha{animation:fagulha .5s steps(1) infinite}
+.cena .zz{animation:zz 2.4s ease-in-out infinite}
+.cena .brilho{animation:brilho 2.2s ease-in-out infinite}
+@keyframes andar{
+  0%{transform:translate(16px,16px)}
+  20%,24%{transform:translate(112px,16px)}
+  34%,50%{transform:translate(48px,16px)}
+  62%,70%{transform:translate(144px,16px)}
+  88%,100%{transform:translate(16px,16px)}
+}
+@keyframes bomba{0%,21.9%{opacity:0}22%,43.9%{opacity:1}44%,100%{opacity:0}}
+@keyframes boom{0%,43.9%{opacity:0;transform:scale(.6)}44%{opacity:1;transform:scale(1)}50%{opacity:1}54%,100%{opacity:0}}
+@keyframes alvo{0%,43.9%{opacity:1}44%,96.9%{opacity:0}97%,100%{opacity:1}}
+@keyframes moeda{0%,45.9%{opacity:0;transform:scale(.3)}47%{opacity:1;transform:scale(1.15)}49%,61.9%{opacity:1;transform:scale(1)}62%,100%{opacity:0;transform:scale(.3)}}
+@keyframes mais{0%,61.9%{opacity:0;transform:translateY(0)}62%{opacity:1}70%{opacity:1;transform:translateY(-12px)}76%,100%{opacity:0;transform:translateY(-16px)}}
+@keyframes fagulha{0%{fill:#fde047}50%{fill:#ef4444}}
+@keyframes zz{0%,100%{opacity:.35;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+@keyframes brilho{0%,100%{opacity:.2}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){
+  .cena *{animation:none !important}
+}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+<!-- desenhos reaproveitados pela página -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <pattern id="piso" width="32" height="32" patternUnits="userSpaceOnUse">
+      <rect width="32" height="32" fill="#1e242e"/>
+      <rect x=".5" y=".5" width="31" height="31" fill="none" stroke="#12161c"/>
+      <path d="M1 1H31" stroke="#2a3240"/>
+      <circle cx="4" cy="4" r="1" fill="#303a49"/><circle cx="28" cy="4" r="1" fill="#303a49"/>
+      <circle cx="4" cy="28" r="1" fill="#303a49"/><circle cx="28" cy="28" r="1" fill="#303a49"/>
+    </pattern>
+    <g id="pilar">
+      <rect x="6" y="11" width="26" height="21" fill="#000" opacity=".45"/>
+      <rect x="3" y="11" width="26" height="18" fill="#2a313d"/>
+      <rect x="3" y="3" width="26" height="10" fill="#444f61"/>
+      <path d="M9 21H21" stroke="#22d3ee" stroke-width="2"/>
+    </g>
+    <g id="caixa">
+      <rect x="6" y="8" width="26" height="25" fill="#000" opacity=".45"/>
+      <rect x="3" y="13" width="26" height="16" fill="#4e3a2a" stroke="#241a12"/>
+      <rect x="3" y="3" width="26" height="10" fill="#7a5a40" stroke="#241a12"/>
+      <path d="M3 13L29 29M29 13L3 29" stroke="#2b1f16" stroke-width="1.5"/>
+    </g>
+    <g id="bau">
+      <rect x="6" y="8" width="26" height="25" fill="#000" opacity=".45"/>
+      <rect x="3" y="13" width="26" height="16" fill="#0e7490" stroke="#083344"/>
+      <rect x="3" y="3" width="26" height="10" fill="#67e8f9" stroke="#083344"/>
+      <path d="M16 4L21 8L16 12L11 8Z" fill="#f0fdff"/>
+      <path d="M16 16L21 21L16 26L11 21Z" fill="#22d3ee"/>
+      <circle cx="6" cy="16" r="1.2" fill="#cffafe"/><circle cx="26" cy="16" r="1.2" fill="#cffafe"/>
+    </g>
+    <g id="heroi">
+      <ellipse cx="0" cy="12" rx="8" ry="2.6" fill="#000" opacity=".4"/>
+      <circle class="aura" r="17" fill="#E24B4A" opacity=".14"/>
+      <rect x="-6" y="8" width="5" height="5" rx="1.5" fill="#14171d"/>
+      <rect x="1" y="8" width="5" height="5" rx="1.5" fill="#14171d"/>
+      <rect class="p-esc" x="-5" y="3" width="10" height="7" rx="2"/>
+      <rect class="p-esc" x="-8" y="-5" width="16" height="12" rx="3"/>
+      <rect class="p-med" x="-5.5" y="-3.5" width="11" height="7" rx="2"/>
+      <circle class="p-bri" r="1.4"/>
+      <circle class="p-sec" cx="-9" cy="-3" r="3.3"/>
+      <circle class="p-sec" cx="9" cy="-3" r="3.3"/>
+      <rect class="crista p-sec" x="-1" y="-18" width="2" height="4" rx="1"/>
+      <g class="chifres"><path class="p-sec" d="M-4 -13L-8 -21L-1 -15Z"/><path class="p-sec" d="M4 -13L8 -21L1 -15Z"/></g>
+      <circle cy="-10" r="6" fill="#2f3744"/>
+      <rect class="p-bri" x="-4" y="-12" width="8" height="3.5" rx="1.7"/>
+    </g>
+  </defs>
+</svg>
+
+<header class="topo">
+  <div class="topo-in">
+    <a class="marca" href="#inicio" aria-label="Bomb Heroes, início">
+      <svg viewBox="0 0 128 128" aria-hidden="true">
+        <rect width="128" height="128" rx="28" fill="#0b1018"/>
+        <rect x="4" y="4" width="120" height="120" rx="24" fill="none" stroke="#22d3ee" stroke-width="3" opacity=".8"/>
+        <circle cx="64" cy="72" r="30" fill="#1c1f26" stroke="#3a4150" stroke-width="2"/>
+        <rect x="40" y="70" width="48" height="12" rx="6" fill="#22d3ee"/>
+        <rect x="54" y="36" width="20" height="11" rx="3" fill="#6b7280"/>
+        <path d="M72 38Q84 24 94 30" fill="none" stroke="#a3a3a3" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="96" cy="29" r="7" fill="#fde047"/>
+      </svg>
+      <span>Bomb Heroes</span>
+    </a>
+    <a class="botao" href="#jogar">Jogar agora</a>
+    <nav aria-label="Principal">
+      <a href="#como">Como funciona</a>
+      <a href="#herois">Heróis</a>
+      <a href="#chances">Chances</a>
+      <a href="#jogar">Jogar</a>
+      <a href="#novidades">Novidades</a>
+    </nav>
+  </div>
+</header>
+
+<main id="conteudo">
+  <div class="hero" id="inicio">
+    <div>
+      <h1>Heróis que caçam <em>tesouro</em> sozinhos</h1>
+      <p class="lead">Escolha até 10 heróis, deixe eles plantarem bombas e juntarem moedas, e gaste tudo em caixas, fusões e baús de diamante.</p>
+      <div class="acoes">
+        <a class="botao" href="#jogar">Jogar agora</a>
+        <a class="link" href="#como">Ver como funciona</a>
+      </div>
+      <p class="nota">Roda no navegador, no celular ou no computador. Sem instalar nada.</p>
+    </div>
+
+    <svg class="cena" viewBox="0 -10 416 202" role="img" aria-label="Um herói planta uma bomba, foge, a explosão quebra uma caixa e ele pega a moeda que caiu">
+      <rect x="0" y="-10" width="416" height="202" fill="url(#piso)"/>
+
+      <use href="#pilar" x="32" y="32"/><use href="#pilar" x="96" y="32"/><use href="#pilar" x="160" y="32"/>
+      <use href="#pilar" x="224" y="32"/><use href="#pilar" x="288" y="32"/><use href="#pilar" x="352" y="32"/>
+      <use href="#pilar" x="32" y="96"/><use href="#pilar" x="96" y="96"/><use href="#pilar" x="160" y="96"/>
+      <use href="#pilar" x="224" y="96"/><use href="#pilar" x="288" y="96"/><use href="#pilar" x="352" y="96"/>
+      <use href="#pilar" x="32" y="160"/><use href="#pilar" x="96" y="160"/><use href="#pilar" x="160" y="160"/>
+      <use href="#pilar" x="224" y="160"/><use href="#pilar" x="288" y="160"/><use href="#pilar" x="352" y="160"/>
+
+      <use href="#caixa" class="alvo" x="128" y="0"/>
+      <use href="#caixa" x="224" y="0"/><use href="#caixa" x="320" y="0"/>
+      <use href="#caixa" x="192" y="32"/><use href="#caixa" x="320" y="32"/>
+      <use href="#caixa" x="64" y="64"/><use href="#caixa" x="160" y="64"/>
+      <use href="#caixa" x="256" y="64"/><use href="#caixa" x="352" y="64"/>
+      <use href="#caixa" x="128" y="96"/><use href="#caixa" x="256" y="96"/><use href="#caixa" x="384" y="96"/>
+      <use href="#caixa" x="64" y="128"/><use href="#caixa" x="160" y="128"/>
+      <use href="#caixa" x="320" y="128"/><use href="#caixa" x="384" y="128"/>
+      <use href="#caixa" x="64" y="160"/><use href="#caixa" x="256" y="160"/>
+      <use href="#bau" x="224" y="128"/>
+      <g class="brilho" stroke="#fff" stroke-width="1.5" stroke-linecap="round"><path d="M249 130H257M253 126V134"/></g>
+
+      <g transform="translate(16,144)">
+        <use href="#heroi" transform="scale(1.14)" style="--esc:#3C3489;--med:#534AB7;--sec:#EF9F27;--bri:#475569"/>
+      </g>
+      <g class="zz">
+        <rect x="26" y="112" width="26" height="14" rx="7" fill="#0f172a" stroke="#22d3ee"/>
+        <text x="39" y="122.5" text-anchor="middle" font-size="9" fill="#67e8f9" font-family="IBM Plex Sans,sans-serif">Zz</text>
+      </g>
+
+      <circle cx="112" cy="16" r="60" fill="#f97316" opacity=".08"/>
+      <g class="boom">
+        <g transform="translate(64,0)"><rect x="3" y="3" width="26" height="26" fill="#ea580c"/><rect x="8" y="8" width="16" height="16" fill="#fb923c"/><rect x="12" y="12" width="8" height="8" fill="#fff7ed"/></g>
+        <g transform="translate(96,0)"><rect x="3" y="3" width="26" height="26" fill="#ea580c"/><rect x="8" y="8" width="16" height="16" fill="#fb923c"/><rect x="12" y="12" width="8" height="8" fill="#fff7ed"/></g>
+        <g transform="translate(128,0)"><rect x="3" y="3" width="26" height="26" fill="#ea580c"/><rect x="8" y="8" width="16" height="16" fill="#fb923c"/><rect x="12" y="12" width="8" height="8" fill="#fff7ed"/></g>
+      </g>
+
+      <g transform="translate(144,16)">
+        <g class="moeda">
+          <circle r="14" fill="#f59e0b" opacity=".22"/>
+          <circle r="8.5" fill="#fbbf24" stroke="#b45309" stroke-width="1.5"/>
+          <circle r="4.5" fill="none" stroke="#b45309" stroke-width="1.2"/>
+          <circle cx="-3" cy="-3" r="1.6" fill="#fff"/>
+        </g>
+      </g>
+
+      <g class="bomba" transform="translate(96,0)">
+        <circle cx="16" cy="21" r="13" fill="#1c1f26" stroke="#3a4150"/>
+        <circle cx="12" cy="18" r="3" fill="#6b7280"/>
+        <rect x="12" y="7" width="8" height="5" fill="#6b7280"/>
+        <circle class="fagulha" cx="24" cy="2" r="3.5" fill="#fde047"/>
+      </g>
+
+      <g class="andar">
+        <use href="#heroi" transform="scale(1.14)" style="--esc:#085041;--med:#0F6E56;--sec:#1D9E75;--bri:#22d3ee"/>
+      </g>
+
+      <text class="mais" x="144" y="24" text-anchor="middle" font-size="11" font-weight="600" fill="#fbbf24" font-family="IBM Plex Sans,sans-serif">+0,10</text>
+    </svg>
+  </div>
+
+  <hr class="sep">
+
+  <section id="como" aria-labelledby="t-como">
+    <h2 id="t-como">Como funciona</h2>
+    <p class="intro">Você monta o time e cuida do tesouro. Quem trabalha no mapa são os heróis.</p>
+    <ol class="passos">
+      <li>
+        <span class="num" aria-hidden="true">1</span>
+        <h3>Monte o time</h3>
+        <p>Até 10 heróis trabalham ao mesmo tempo no mapa. O resto espera na reserva, e você troca quando quiser.</p>
+      </li>
+      <li>
+        <span class="num" aria-hidden="true">2</span>
+        <h3>Deixe eles trabalharem</h3>
+        <p>Cada herói acha o caminho, planta bombas, foge da explosão e junta as moedas que caem. Quando as bombas acabam, ele volta para casa e dorme até se recuperar.</p>
+      </li>
+      <li>
+        <span class="num" aria-hidden="true">3</span>
+        <h3>Gaste as moedas</h3>
+        <p>Abra caixas para ganhar novos heróis, ou use os itens que saem do Baú de Diamante, como o buff que deixa todo mundo 5 vezes mais rápido por 24 horas.</p>
+      </li>
+      <li>
+        <span class="num" aria-hidden="true">4</span>
+        <h3>Suba de raridade</h3>
+        <p>Funda 4 heróis iguais para tentar um de raridade maior. Só dá certo em 10% das vezes, e quando falha os 4 se perdem.</p>
+      </li>
+    </ol>
+  </section>
+
+  <hr class="sep">
+
+  <section id="herois" aria-labelledby="t-herois">
+    <h2 id="t-herois">Cinco raridades</h2>
+    <p class="intro">Alcance é quantas casas a explosão atravessa. Bombas é quantas o herói planta antes de ir descansar.</p>
+    <ul class="herois">
+      <li class="hcard" style="--esc:#085041;--med:#0F6E56;--sec:#1D9E75;--bri:#22d3ee">
+        <svg viewBox="-20 -26 40 44" aria-hidden="true"><use href="#heroi"/></svg>
+        <h3>Comum</h3>
+        <p class="de">Sai das caixas</p>
+        <div class="stat"><span>Alcance</span><span class="barra" style="--v:33%"><i></i></span><b>1</b></div>
+        <div class="stat"><span>Bombas</span><span class="barra" style="--v:42%"><i></i></span><b>5</b></div>
+      </li>
+      <li class="hcard" style="--esc:#1e3a8a;--med:#2563eb;--sec:#60a5fa;--bri:#93c5fd">
+        <svg viewBox="-20 -26 40 44" aria-hidden="true"><use href="#heroi"/></svg>
+        <h3>Incomum</h3>
+        <p class="de">Sai das caixas</p>
+        <div class="stat"><span>Alcance</span><span class="barra" style="--v:33%"><i></i></span><b>1</b></div>
+        <div class="stat"><span>Bombas</span><span class="barra" style="--v:50%"><i></i></span><b>6</b></div>
+      </li>
+      <li class="hcard" style="--esc:#3C3489;--med:#534AB7;--sec:#EF9F27;--bri:#fbbf24">
+        <svg viewBox="-20 -26 40 44" aria-hidden="true"><use href="#heroi"/></svg>
+        <h3>Raro</h3>
+        <p class="de">Sai das caixas</p>
+        <div class="stat"><span>Alcance</span><span class="barra" style="--v:67%"><i></i></span><b>2</b></div>
+        <div class="stat"><span>Bombas</span><span class="barra" style="--v:58%"><i></i></span><b>7</b></div>
+      </li>
+      <li class="hcard" style="--esc:#701a75;--med:#a21caf;--sec:#f0abfc;--bri:#e879f9">
+        <svg viewBox="-20 -26 40 44" aria-hidden="true"><use href="#heroi"/></svg>
+        <h3>Épico</h3>
+        <p class="de">Só por fusão</p>
+        <div class="stat"><span>Alcance</span><span class="barra" style="--v:67%"><i></i></span><b>2</b></div>
+        <div class="stat"><span>Bombas</span><span class="barra" style="--v:75%"><i></i></span><b>9</b></div>
+      </li>
+      <li class="hcard" style="--esc:#791F1F;--med:#A32D2D;--sec:#FAC775;--bri:#fb923c;--aura:inline;--chifres:inline;--crista:none">
+        <svg viewBox="-20 -26 40 44" aria-hidden="true"><use href="#heroi"/></svg>
+        <h3>Lendário</h3>
+        <p class="de">Só por fusão</p>
+        <div class="stat"><span>Alcance</span><span class="barra" style="--v:100%"><i></i></span><b>3</b></div>
+        <div class="stat"><span>Bombas</span><span class="barra" style="--v:100%"><i></i></span><b>12</b></div>
+      </li>
+    </ul>
+  </section>
+
+  <hr class="sep">
+
+  <section id="chances" aria-labelledby="t-chances">
+    <h2 id="t-chances">As chances, sem letra miúda</h2>
+    <p class="intro">Aqui estão todos os sorteios do jogo, com os números reais.</p>
+    <div class="regras">
+      <details open>
+        <summary>Caixa de heróis</summary>
+        <div class="corpo-regra">
+          <p>Custa 30 moedas e sorteia um herói. Épico e Lendário não saem de caixa.</p>
+          <table>
+            <thead><tr><th>Raridade</th><th>Chance</th></tr></thead>
+            <tbody>
+              <tr><td>Comum</td><td>70%</td></tr>
+              <tr><td>Incomum</td><td>25%</td></tr>
+              <tr><td>Raro</td><td>5%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+      <details>
+        <summary>Fusão de heróis</summary>
+        <div class="corpo-regra">
+          <p>Quatro heróis da mesma raridade viram um da raridade seguinte, com 10% de chance. Se falhar, os quatro são perdidos. Na média, cada fusão que dá certo gasta uns 40 heróis.</p>
+          <table>
+            <thead><tr><th>Fusão</th><th>Custo</th></tr></thead>
+            <tbody>
+              <tr><td>Comum para Incomum</td><td>5 moedas</td></tr>
+              <tr><td>Incomum para Raro</td><td>15 moedas</td></tr>
+              <tr><td>Raro para Épico</td><td>40 moedas</td></tr>
+              <tr><td>Épico para Lendário</td><td>100 moedas</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+      <details>
+        <summary>Caixas do mapa</summary>
+        <div class="corpo-regra">
+          <p>As caixas espalhadas pelo mapa têm cinco níveis de resistência. Ao quebrar, soltam moeda em 4 de cada 10 vezes.</p>
+          <div class="rolagem">
+            <table>
+              <thead><tr><th>Nível</th><th>Explosões</th><th>Aparece</th><th>Moeda</th></tr></thead>
+              <tbody>
+                <tr><td>1, madeira</td><td>1</td><td>55%</td><td>0,10</td></tr>
+                <tr><td>2, aço</td><td>5</td><td>25%</td><td>0,25</td></tr>
+                <tr><td>3, roxa</td><td>10</td><td>12%</td><td>0,50</td></tr>
+                <tr><td>4, dourada</td><td>25</td><td>6%</td><td>1,00</td></tr>
+                <tr><td>5, vermelha</td><td>50</td><td>2%</td><td>2,50</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </details>
+      <details>
+        <summary>Baú de Diamante</summary>
+        <div class="corpo-regra">
+          <p>Aparece em 1% dos mapas e aguenta 500 explosões. Quando quebra, solta uma destas coisas:</p>
+          <table>
+            <thead><tr><th>Prêmio</th><th>Chance</th></tr></thead>
+            <tbody>
+              <tr><td>500 moedas</td><td>50%</td></tr>
+              <tr><td>1000 moedas</td><td>30%</td></tr>
+              <tr><td>Slot de personagem, mais um espaço para guardar heróis</td><td>10%</td></tr>
+              <tr><td>Caixa de personagem grátis</td><td>9%</td></tr>
+              <tr><td>Buff de velocidade 5x por 24 horas</td><td>1%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+    <p class="aviso-regras">Esses são os números da versão atual e podem mudar. Toda mudança aparece em Novidades.</p>
+  </section>
+
+  <hr class="sep">
+
+  <section id="jogar" aria-labelledby="t-jogar">
+    <h2 id="t-jogar">Jogar</h2>
+    <p class="intro">O jogo abre aqui mesmo, no navegador. No celular, deite a tela para jogar melhor.</p>
+    <div class="tela" id="tela-jogo">
+      <div class="aviso" id="aviso-jogo">
+        <svg viewBox="0 0 128 128" aria-hidden="true">
+          <circle cx="64" cy="72" r="38" fill="#22d3ee" opacity=".12"/>
+          <circle cx="64" cy="72" r="30" fill="#1c1f26" stroke="#3a4150" stroke-width="2"/>
+          <rect x="40" y="70" width="48" height="12" rx="6" fill="#22d3ee"/>
+          <rect x="54" y="36" width="20" height="11" rx="3" fill="#6b7280"/>
+          <path d="M72 38Q84 24 94 30" fill="none" stroke="#a3a3a3" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="96" cy="29" r="7" fill="#fde047"/>
+        </svg>
+        <strong>A versão para navegador está em preparação</strong>
+        <p>Assim que ficar pronta, o jogo passa a abrir nesta área, sem instalar nada.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="sep">
+
+  <section id="novidades" aria-labelledby="t-novidades">
+    <h2 id="t-novidades">Novidades</h2>
+    <p class="intro">O que mudou em cada versão do jogo e do site.</p>
+    <div id="lista-novidades">
+      <p class="vazio">Carregando novidades...</p>
+      <noscript><p class="vazio">Ative o JavaScript para ver as novidades.</p></noscript>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="rodape">
+    <strong>Bomb Heroes</strong>
+    <span>Jogo em desenvolvimento. Os termos de uso e a política de privacidade serão publicados aqui antes da abertura das contas online.</span>
+    <span>&copy; 2026 Bomb Heroes</span>
+  </div>
+</footer>
+
+<script>
+/* COMO LIGAR O JOGO NA PÁGINA (escolha UMA das duas opções):
+
+   Opção 1, jogo hospedado em outro site (por exemplo, itch.io):
+   coloque o endereço da página do jogo em LINK_JOGO.
+   Exemplo: var LINK_JOGO = "https://seunome.itch.io/bomb-heroes";
+
+   Opção 2, jogo dentro do seu próprio site:
+   coloque o caminho em JOGO_URL.
+   Exemplo: var JOGO_URL = "/jogo/index.html";
+
+   Enquanto os dois estiverem vazios, a página mostra "em preparação". */
+var LINK_JOGO = "https://lodtec.itch.io/bomb-heroes?secret=ZYcUyjgO0KFH9GlWHj9xVFcW9XQ";
+var JOGO_URL = "";
+
+(function () {
+  var tela = document.getElementById("tela-jogo");
+
+  if (JOGO_URL && tela) {
+    var quadro = document.createElement("iframe");
+    quadro.src = JOGO_URL;
+    quadro.title = "Bomb Heroes";
+    quadro.allow = "autoplay; fullscreen";
+    quadro.allowFullscreen = true;
+    tela.textContent = "";
+    tela.appendChild(quadro);
+  } else if (LINK_JOGO && tela) {
+    var aviso = document.getElementById("aviso-jogo");
+    if (aviso) {
+      var titulo = aviso.querySelector("strong");
+      var texto = aviso.querySelector("p");
+      if (titulo) { titulo.textContent = "O jogo está no ar"; }
+      if (texto) { texto.textContent = "Ele abre em uma página própria, direto no navegador, sem instalar nada."; }
+      var abrir = document.createElement("a");
+      abrir.className = "botao";
+      abrir.href = LINK_JOGO;
+      abrir.target = "_blank";
+      abrir.rel = "noopener";
+      abrir.textContent = "Abrir o jogo";
+      abrir.style.marginTop = "18px";
+      aviso.appendChild(abrir);
+    }
+    var botoes = document.querySelectorAll("a.botao[href='#jogar']");
+    for (var i = 0; i < botoes.length; i++) {
+      botoes[i].href = LINK_JOGO;
+      botoes[i].target = "_blank";
+      botoes[i].rel = "noopener";
+    }
+  }
+
+  var alvo = document.getElementById("lista-novidades");
+  if (!alvo) { return; }
+
+  function criar(tag, texto) {
+    var e = document.createElement(tag);
+    if (texto) { e.textContent = texto; }
+    return e;
+  }
+
+  function formatarData(s) {
+    var d = new Date(s + "T12:00:00");
+    if (isNaN(d.getTime())) { return s; }
+    return d.toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" });
+  }
+
+  fetch("versao.json?v=" + Date.now(), { cache: "no-store" })
+    .then(function (r) {
+      if (!r.ok) { throw new Error("http " + r.status); }
+      return r.json();
+    })
+    .then(function (dados) {
+      alvo.textContent = "";
+      (dados.versoes || []).forEach(function (v) {
+        var bloco = criar("article");
+        bloco.className = "versao";
+        bloco.appendChild(criar("h3", "Versão " + v.versao + (v.titulo ? ": " + v.titulo : "")));
+        var hora = criar("time", formatarData(v.data));
+        hora.setAttribute("datetime", v.data);
+        bloco.appendChild(hora);
+        var lista = criar("ul");
+        (v.itens || []).forEach(function (item) { lista.appendChild(criar("li", item)); });
+        bloco.appendChild(lista);
+        alvo.appendChild(bloco);
+      });
+      if (!alvo.children.length) { alvo.appendChild(criar("p", "Ainda não há novidades publicadas.")); }
+    })
+    .catch(function () {
+      alvo.textContent = "";
+      var p = criar("p", "Não foi possível carregar as novidades agora. Tente de novo em instantes.");
+      p.className = "vazio";
+      alvo.appendChild(p);
+    });
+})();
+</script>
+</body>
+</html>
